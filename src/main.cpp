@@ -1,18 +1,25 @@
 #include <Arduino.h>
+#include <Rosetta.h>
+constexpr int BEGIN = 9600;
+constexpr int BAUDRATE = 250000;
 
-// put function declarations here:
-int myFunction(int, int);
+
+FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> can1;
+FlexCAN_T4<CAN2, RX_SIZE_256, TX_SIZE_16> can2;
+
+Rosetta rosetta(&Serial2);
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial2.begin(9600);
+
+  can1.begin();
+  can1.setBaudRate(BAUDRATE);
+  can2.begin();
+  can2.setBaudRate(BAUDRATE);
+
+  rosetta.setCAN(can2, can1);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  rosetta.run();
 }
