@@ -10,7 +10,8 @@ FlexCAN_T4<CAN2, RX_SIZE_256, TX_SIZE_16> can2;
 Rosetta rosetta(&Serial2);
 
 void setup() {
-  Serial2.begin(9600);
+  Serial.begin(9600);
+  Serial2.begin(115200);
 
   can1.begin();
   can1.setBaudRate(BAUDRATE);

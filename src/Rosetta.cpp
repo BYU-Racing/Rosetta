@@ -5,6 +5,11 @@ Rosetta::Rosetta(HardwareSerial* serialIn) {
     uSerial = serialIn;
 }
 
+struct Message {
+    uint8_t id;
+    uint8_t buf[8];
+} message;
+
 
 void Rosetta::run() {
     if(comsCAN.read(msg)) {
@@ -19,21 +24,21 @@ void Rosetta::run() {
 void Rosetta::setCAN(FlexCAN_T4<CAN2, RX_SIZE_256, TX_SIZE_16> comsCANin, FlexCAN_T4<CAN1, RX_SIZE_256, TX_SIZE_16> motorCANin) {
     comsCAN = comsCANin;
     motorCAN = motorCANin;
+
+    transferTool.begin(*uSerial);
 }
 
 void Rosetta::translate() {
-    
-    char serialMessage[12]; // 1 newline + 1 ID + 8 buffers + 1 null terminator
 
-    serialMessage[0] = '\n';
+    uint16_t sendSize = 0;
 
-    serialMessage[1] = static_cast<char>(msg.id);
+    message.id = msg.id;
 
-    for (int i = 0; i < 8; i++) {
-        serialMessage[i + 2] = static_cast<char>(msg.buf[i]);
+    for(int i = 0; i < 8; i++) {
+        message.buf[i] = msg.buf[i];
     }
 
-    serialMessage[10] = '\0';
+    sendSize = transferTool.txObj(message, sendSize);
 
-    uSerial->write(serialMessage, 10); 
+    transferTool.sendData(sendSize);
 }
